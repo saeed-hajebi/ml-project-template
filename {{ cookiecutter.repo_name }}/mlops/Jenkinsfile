@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout true
+    }
+
+    stages {
+
+        // CI
+        stage('Initialize Workspace and Checkout Source') {
+            steps {
+                echo "Running pipeline on $BRANCH_NAME"
+                sh 'printenv | sort'
+                cleanWs()
+                checkout scm
+            }
+        }
+
+        // CI
+        stage('Test Code Quality') {
+            when { expression { return env.BRANCH_NAME != 'dev' } }
+            steps {
+                echo "Testing code quality on branch $BRANCH_NAME"
+                sh "pycodestyle --show-source --exclude='*/reconciliation' $WORKSPACE/src/data"
+            }
+        }
+
+        // CI: Sonarqube Part 1: Scan project to create report.
+        stage('SonarQube Analysis') {
+            environment {
+                SCANNER_HOME = tool 'SONARQUBE_SCANNER'
+                PROJECT_NAME = 'LSE_PRICE_PROMO_ELASTICITY'
+            }
+            steps {
+                withSonarQubeEnv('SONARQUBE_SERVER') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                    -D sonar.projectKey=$PROJECT_NAME \
+                    -D sonar.sources=src/data \
+                    -D sonar.exclusions=src/data/reconciliation
+                    '''
+                }
+            }
+        }
+
+        // CI: Sonarqube Part 2: Validate if project passes quality gate.
+        stage('Sonarqube Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 3, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
