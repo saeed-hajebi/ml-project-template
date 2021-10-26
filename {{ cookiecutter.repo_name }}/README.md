@@ -13,6 +13,8 @@ Project Organization
     │   ├── external       <- Data from third party sources.
     │   ├── interim        <- Intermediate data that has been transformed.
     │   ├── processed      <- The final, canonical data sets for modeling.
+    │   │   ├── testing
+    │   │   └── training
     │   └── raw            <- The original, immutable data dump.
     │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
@@ -24,7 +26,6 @@ Project Organization
     │   │   └── config.yaml
     │   │
     │   ├── dags           <- Scripts for Airflow dags
-    │   │   └── test_dag.py
     │   │
     │   ├── docker         <- Docker files
     │   │   └── Dockerfile
