@@ -17,6 +17,9 @@ Project Organization
     │   │   └── training
     │   └── raw            <- The original, immutable data dump.
     │
+    ├── devops             <- Scripts for devOps
+    │   └── Jenkinsfile    <- Jenkins file
+    │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │
     ├── mlops              <- Scripts for MLOps
